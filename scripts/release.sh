@@ -1,4 +1,4 @@
-#!/bin/sh -x
+#!/bin/sh
 DIRNAME="$(dirname $0)"
 
 # set PROJECT_NAME variable
