@@ -6,7 +6,7 @@ with open("py_dict_repr/__about__.py") as fp:
 with open("README.md", "r") as fp:
     long_description = fp.read()
 
-setup(name='py_dict_repr',
+setup(name='py-dict-repr',
       version=about["__version__"],
       description=about["__summary__"],
       long_description=long_description,
