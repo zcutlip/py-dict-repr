@@ -94,6 +94,9 @@ class DictRepr(ABC):
 
         return converted
 
+    def items(self):
+        return ((k, self[k]) for k in self.keys())
+
     @abstractmethod
     def keys(self):
         raise NotImplementedError
