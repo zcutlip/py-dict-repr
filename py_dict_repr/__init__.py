@@ -4,7 +4,7 @@ from .__about__ import (
     __summary__
 )
 
-from .py_dict_repr import DictRepr  # noqa: F401
+from .py_dict_repr import DictRepr, KeyTuple  # noqa: F401
 
 __all__ = [
     "__version__",
