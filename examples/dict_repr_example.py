@@ -10,7 +10,7 @@ parent_path = os.path.dirname(
 if parent_path not in sys.path:
     sys.path.append(parent_path)
 
-from py_dict_repr import DictRepr  # noqa: E401
+from py_dict_repr import DictRepr  # noqa: E402
 
 
 class MyArbitraryClass(DictRepr):
