@@ -1,5 +1,16 @@
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from abc import ABC, abstractmethod
+
+_KeyTuple = namedtuple('KeyTuple', ['key', 'attr_name'])
+
+
+class KeyTuple(_KeyTuple):
+
+    def __str__(self):
+        return self.key
+
+    def __repr__(self):
+        return str(self)
 
 
 class DictRepr(ABC):
@@ -28,6 +39,8 @@ class DictRepr(ABC):
         return self._DictIterator(self)
 
     def __getitem__(self, item):
+        if isinstance(item, KeyTuple):
+            item = item.attr_name
         try:
             thing = getattr(self, item)
         except AttributeError as ae:
