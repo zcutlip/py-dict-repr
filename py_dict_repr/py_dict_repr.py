@@ -1,16 +1,15 @@
-from collections import OrderedDict, namedtuple
 from abc import ABC, abstractmethod
+from collections import OrderedDict
 
-_KeyTuple = namedtuple('KeyTuple', ['key', 'attr_name'])
 
+class KeyTuple(str):
 
-class KeyTuple(_KeyTuple):
+    def __new__(cls, key, attr_name):
+        return str.__new__(cls, key)
 
-    def __str__(self):
-        return self.key
-
-    def __repr__(self):
-        return str(self)
+    def __init__(self, key, attr_name):
+        self.attr_name = attr_name
+        self.key = key
 
 
 class DictRepr(ABC):
