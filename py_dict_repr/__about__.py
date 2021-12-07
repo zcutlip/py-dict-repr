@@ -1,5 +1,5 @@
 __title__ = "py-dict-repr"
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 __summary__ = "An abstract class to enable abitrary classes to define their own dictionary representation."
 
 """
