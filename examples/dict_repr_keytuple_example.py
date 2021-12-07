@@ -1,7 +1,7 @@
 import os
 import sys
 from pprint import pprint
-
+import json
 parent_path = os.path.dirname(
     os.path.dirname(
         os.path.abspath(__file__)
@@ -38,11 +38,23 @@ class MyArbitraryClass(DictRepr):
         return len(self._value)
 
     def keys(self):
-        return self._keys
+        keys = self._keys
+        return keys
 
 
 if __name__ == "__main__":
     myobj = MyArbitraryClass("Hello World")
     mydict = dict(myobj)
     print("mydict type: {}".format(type(mydict)))
+    print("---------------------------")
+    print("pretty-print:")
+    print("")
     pprint(mydict, sort_dicts=False)
+    print("")
+    print("---------------------------")
+    print("JSON:")
+    print("")
+    print(json.dumps(mydict, indent=2))
+    print("")
+    print("---------------------------")
+    print("done")
