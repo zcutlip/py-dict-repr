@@ -12,7 +12,29 @@ class KeyTuple(str):
         self.key = key
 
 
+def _hooked_dict(*args, **kwargs):
+    obj = _orig_dict.__new__(_orig_dict)
+    try:
+        iter(args)
+        for arg in args:
+            if hasattr(arg, "_dr_new_root"):
+                arg._dr_new_root = obj
+    except TypeError:
+        pass
+    obj.__init__(*args, **kwargs)
+    # print("custom dict")
+    return obj
+
+
 class DictRepr(ABC):
+
+    def __new__(cls, *args, **kwargs):
+        import inspect
+        inspect.currentframe().f_globals['__builtins__']['dict'] = _hooked_dict
+        obj = super().__new__(cls)
+        obj._dr_new_root = None
+        return obj
+
     class _DictIterator:
         def __init__(self, obj):
             self._obj = obj
