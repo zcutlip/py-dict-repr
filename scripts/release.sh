@@ -1,13 +1,14 @@
-#!/bin/sh
+#!/bin/sh -x
 DIRNAME="$(dirname $0)"
 
-# set PROJECT_NAME variable
-source "$DIRNAME"/projectname.sh
+# set DISTRIBUTION_NAME variable
+SRC_DISTRIBUTION_NAME="$(python3 setup.py --name)"
+BDIST_NAME="$(echo $SRC_DISTRIBUTION_NAME | tr '\- ' _)"
 
 # utility functions
 source "$DIRNAME"/functions.sh
 
-if ! branch_is_master;
+if ! branch_is_master_or_main;
 then
     quit "Checkout branch 'master' before generating release." 1
 fi
@@ -35,10 +36,10 @@ version=$(current_version);
 
 generate_dist;
 echo "About to post the following distribution files to pypi.org."
-ls -1 dist/"$PROJECT_NAME"-$version.*
+ls -1 dist/"$SRC_DISTRIBUTION_NAME"-$version.* dist/"$BDIST_NAME"-$version*
 
 if prompt_yes_no;
 then
-    python3 -m twine upload dist/"$PROJECT_NAME"-$version*
+    python3 -m twine upload dist/"$SRC_DISTRIBUTION_NAME"-$version.* dist/"$BDIST_NAME"-$version*
 fi
 
