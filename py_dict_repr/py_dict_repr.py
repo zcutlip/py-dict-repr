@@ -38,15 +38,26 @@ class DictRepr(ABC):
     def __iter__(self):
         return self._DictIterator(self)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item, memo=None, convert=True):
+        """
+        internal-use-only kwargs:
+        memo: a memo dict that gets passed in once we've started a conversion to
+              ensure we don't convert an object twice
+        convert: if a conversion function is getting items, we don't need to convert them also
+        """
         if isinstance(item, KeyTuple):
             item = item.attr_name
         try:
             thing = getattr(self, item)
         except AttributeError as ae:
             raise KeyError(item) from ae
+        if convert:
+            converted = self._convert(thing, memo)
+        else:
+            # we don't need to convert if the items were already being retrieved for conversion
+            converted = thing
 
-        return self._convert(thing)
+        return converted
 
     def _convert(self, obj, memo=None):
         if memo is None:
