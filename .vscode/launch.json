@@ -19,6 +19,22 @@
             "program": "${workspaceFolder}/examples/dict_repr_example.py",
             "console": "integratedTerminal",
             "justMyCode": false
+        },
+        {
+            "name": "Python: dict_repr_graph_cycle",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/examples/dict_repr_graph_cycle.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Python: copy_tuple",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/examples/copy_tuple.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
         }
     ]
 }
