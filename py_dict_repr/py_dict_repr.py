@@ -189,3 +189,9 @@ class DictRepr(ABC):
     @abstractmethod
     def keys(self):
         raise NotImplementedError
+
+
+class DictWithCycles(dict):
+    def __init__(self, dict_repr: DictRepr):
+        dict_repr._dr_new_root = self
+        super().__init__(dict_repr)
