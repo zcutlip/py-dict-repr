@@ -92,8 +92,6 @@ class DictRepr(ABC):
         elif isinstance(obj, DictRepr):
             if converted is None:
                 converted = self._convert_dict_repr(obj, memo)
-            else:
-                print("converted")
         elif isinstance(obj, dict):
             if converted is None:
                 converted = self._convert_dict(obj, memo)
