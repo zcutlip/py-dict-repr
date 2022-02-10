@@ -3,5 +3,6 @@ autopep8
 pycodestyle
 ipython
 pytest
+twine
 -r requirements.txt
 -e .
