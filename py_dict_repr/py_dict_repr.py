@@ -12,28 +12,7 @@ class KeyTuple(str):
         self.key = key
 
 
-def _hooked_dict(*args, **kwargs):
-    obj = _orig_dict.__new__(_orig_dict)
-    try:
-        iter(args)
-        for arg in args:
-            if hasattr(arg, "_dr_new_root"):
-                arg._dr_new_root = obj
-    except TypeError:
-        pass
-    obj.__init__(*args, **kwargs)
-    # print("custom dict")
-    return obj
-
-
 class DictRepr(ABC):
-
-    def __new__(cls, *args, **kwargs):
-        import inspect
-        inspect.currentframe().f_globals['__builtins__']['dict'] = _hooked_dict
-        obj = super().__new__(cls)
-        obj._dr_new_root = None
-        return obj
 
     class _DictIterator:
         def __init__(self, obj):
@@ -69,49 +48,102 @@ class DictRepr(ABC):
 
         return self._convert(thing)
 
-    def _convert(self, obj):
-        if isinstance(obj, DictRepr):
-            converted = dict(obj)
+    def _convert(self, obj, memo=None):
+        if memo is None:
+            if self.dr_new_root is None:
+                self_convert = GraphCycleException(f"Graph cycle referencing outer-most object: {self}")
+            else:
+                self_convert = self.dr_new_root
+            memo = {id(self): self_convert}
+        try:
+            converted = memo[id(obj)]
+
+        except KeyError:
+            converted = None
+        if isinstance(converted, GraphCycleException):
+            raise converted
+        if obj is None:
+            converted = obj
+        elif isinstance(obj, DictRepr):
+            if converted is None:
+                converted = self._convert_dict_repr(obj, memo)
+            else:
+                print("converted")
         elif isinstance(obj, dict):
-            converted = self._convert_dict(obj)
-        elif isinstance(obj, (list, tuple, set)):
-            converted = self._convert_sequence(obj)
+            if converted is None:
+                converted = self._convert_dict(obj, memo)
+        elif isinstance(obj, tuple):
+            # no need to copy tuple objects becuase they don't get memoized
+            converted = self._convert_tuple(obj, memo)
+        elif isinstance(obj, set):
+            if converted is not None:
+                converted = copy.copy(converted)
+            else:
+                converted = self._convert_set(obj, memo)
+        elif isinstance(obj, list):
+            if converted is not None:
+                converted = copy.copy(converted)
+            else:
+                converted = self._convert_list(obj, memo)
         else:
+            # TODO: probably need to copy obj
+            converted = obj
+
+        return converted
+
+    def _convert_dict_repr(self, obj, memo):
+        converted = {}
+        memo[id(obj)] = converted
+        for k, v in obj.items(memo=memo, convert=False):
+            # TODO: convert keys as well
+            conv = self._convert(v, memo)
+            converted[k] = conv
+
+        return converted
+
+    def _convert_dict(self, obj, memo):
+        dict_type = type(obj)
+        converted = dict_type()
+        memo[id(obj)] = converted
+        for k, v in obj.items():
+            # TODO: convert keys as well
+            converted[k] = self._convert(v, memo)
+
+        return converted
+
+    def _convert_set(self, obj: set, memo):
+        set_type = type(obj)
+        converted = set_type()
+        memo[id(obj)] = converted
+        for thing in obj:
+            converted_thing = self._convert(thing, memo)
+            converted.add(converted_thing)
+        return converted
+
+    def _convert_tuple(self, obj: tuple, memo):
+        _tmp = []
+        for a in obj:
+            c = self._convert(a, memo)
+            _tmp.append(c)
+
+        for k, j in zip(obj, _tmp):
+            if k is not j:
+                # something must have been converted
+                # in the self._convert list comprehension above
+                # must return a new tuple obj
+                converted = tuple(_tmp)
+                break
+        else:
+            # everything in obj matched everything in _tmp
             converted = obj
         return converted
 
-    def _convert_dict(self, obj):
-        if isinstance(obj, OrderedDict):
-            converted = OrderedDict()
-        else:
-            converted = dict()
-
-        for k, v in obj.items():
-            converted[k] = self._convert(v)
-
-        return converted
-
-    def _convert_sequence(self, obj):
-        if isinstance(obj, list):
-            converted = []
-            for thing in obj:
-                thing = self._convert(thing)
-                converted.append(thing)
-        elif isinstance(obj, tuple):
-            converted = []
-            for thing in obj:
-                thing = self._convert(thing)
-                converted.append(thing)
-            converted = tuple(converted)
-        elif isinstance(obj, set):
-            _list = list(obj)
-            converted = []
-            for thing in _list:
-                thing = self._convert(thing)
-                converted.append(thing)
-            converted = set(converted)
-        else:
-            raise TypeError("not a sequence", obj)
+    def _convert_list(self, obj, memo):
+        converted = []
+        memo[id(obj)] = converted
+        for thing in obj:
+            thing = self._convert(thing, memo)
+            converted.append(thing)
 
         return converted
 
