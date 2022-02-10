@@ -168,8 +168,19 @@ class DictRepr(ABC):
 
         return converted
 
-    def items(self):
-        return ((k, self[k]) for k in self.keys())
+    def items(self, memo=None, convert=True):
+        """
+        memo: if a convert function is iterating over our items, it'll pass us a memo dict
+              to pass into __getitem__()
+        convert: if a convert fucntion is about to convert the items its iterating over,
+                 it'll pass a flag telling __getitem__ not to do the conversion
+        """
+        _tmp = []
+        for k in self.keys():
+            v = self.__getitem__(k, memo=memo, convert=convert)
+            _tmp.append((k, v))
+        _items = tuple(_tmp)
+        return _items
 
     @abstractmethod
     def keys(self):
