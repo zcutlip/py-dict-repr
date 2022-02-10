@@ -1,5 +1,9 @@
+import copy
 from abc import ABC, abstractmethod
-from collections import OrderedDict
+
+
+class GraphCycleException(Exception):
+    pass
 
 
 class KeyTuple(str):
