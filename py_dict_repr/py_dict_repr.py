@@ -35,6 +35,16 @@ class DictRepr(ABC):
 
             return ret
 
+    @property
+    def dr_new_root(self):
+        if not hasattr(self, "_dr_new_root"):
+            self._dr_new_root = None
+        return self._dr_new_root
+
+    @dr_new_root.setter
+    def dr_new_root(self, root_obj):
+        self.dr_new_root = root_obj
+
     def __iter__(self):
         return self._DictIterator(self)
 
